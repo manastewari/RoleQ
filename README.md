@@ -28,7 +28,8 @@ each assessment dimension separately.
   completing the setup below.
 - **Hosted application:** [https://roleq.vercel.app](https://roleq.vercel.app)
 - **Production API health:** [https://roleq.vercel.app/_/api/health](https://roleq.vercel.app/_/api/health)
-
+- **For Testing use these credentials:** Student Login - Email: manastewari322@gmail.com , Password: Zaq!2wsx
+ **avoid creating an account because supabase allow on 2 email for verification, please stick to the above provided credentials for demostration**
 ## The idea
 
 RoleQ provides two role-based workspaces:
