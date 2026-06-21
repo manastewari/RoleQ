@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: roleq-api
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: .
+    buildCommand: pip install -r services/api/requirements.txt
+    startCommand: cd services/api && python -m alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: AUTH_MODE
+        value: supabase
+      - key: OPENAI_MODEL
+        value: gpt-5.5
+      - key: OPENAI_REALTIME_MODEL
+        value: gpt-realtime-2
+      - key: JUDGE0_URL
+        value: https://ce.judge0.com
+      - key: JUDGE0_AUTH_HEADER
+        value: X-Auth-Token
+      - key: ARTIFACT_RETENTION_DAYS
+        value: "30"
+      - key: STORAGE_DIR
+        value: /tmp/roleq-artifacts
+      - key: DATABASE_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: JUDGE0_AUTH_TOKEN
+        sync: false

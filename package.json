@@ -1,0 +1,29 @@
+{
+  "name": "interview-agent",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n web,api -c cyan,magenta \"npm run dev:web\" \"npm run dev:api\"",
+    "dev:web": "npm --workspace apps/web run dev",
+    "dev:api": "powershell -ExecutionPolicy Bypass -File scripts/run-api.ps1",
+    "build": "npm --workspace apps/web run build",
+    "lint": "npm --workspace apps/web run lint",
+    "test:api": "powershell -ExecutionPolicy Bypass -File scripts/test-api.ps1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "dompurify": "3.4.11",
+    "postcss": "8.5.15"
+  },
+  "overrides": {
+    "monaco-editor": {
+      "dompurify": "$dompurify"
+    },
+    "next": {
+      "postcss": "$postcss"
+    }
+  }
+}

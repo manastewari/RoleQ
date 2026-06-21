@@ -1,0 +1,9 @@
+<svg width="320" height="96" viewBox="0 0 320 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="80" height="80" y="8" rx="20" fill="#17343D"/>
+  <circle cx="38" cy="43" r="25" stroke="white" stroke-width="5"/>
+  <path d="M56 61.1 68 73.1" stroke="white" stroke-width="5" stroke-linecap="round"/>
+  <path d="m22 51.3 10-10 7.8 7.8 14.7-14.8" stroke="#8BE4C3" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M45.5 34.3h9v9" stroke="#8BE4C3" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="101" y="49" fill="#172033" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="700">RoleQ</text>
+  <text x="103" y="70" fill="#68748A" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="1.8">MEASURE. PRACTICE. SUCCEED.</text>
+</svg>
