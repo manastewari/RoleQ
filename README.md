@@ -26,10 +26,8 @@ each assessment dimension separately.
 
 - **Local prototype:** [http://localhost:3000](http://localhost:3000) after
   completing the setup below.
-- **Public video or hosted demo:** [Add the RoleQ demo link here](https://example.com/replace-with-roleq-demo)
-
-> Before submitting the project, replace the public demo placeholder above with
-> a Loom, YouTube, Google Drive, deployed application, or presentation URL.
+- **Hosted application:** [https://roleq.vercel.app](https://roleq.vercel.app)
+- **Production API health:** [https://roleq.vercel.app/_/api/health](https://roleq.vercel.app/_/api/health)
 
 ## The idea
 
@@ -158,9 +156,10 @@ fallback.
 
 ## Deployment
 
-RoleQ is configured for a Vercel frontend, Render FastAPI backend, and Supabase
-PostgreSQL/Auth deployment. Follow [DEPLOYMENT.md](DEPLOYMENT.md) to publish a
-shareable HTTPS URL and configure production authentication callbacks.
+RoleQ is deployed as a Vercel multi-service project: Next.js at `/` and FastAPI
+at `/_/api`. Supabase provides authentication and is the recommended persistent
+PostgreSQL provider. Follow [DEPLOYMENT.md](DEPLOYMENT.md) for production
+environment variables and authentication callback configuration.
 
 ## Environment configuration
 

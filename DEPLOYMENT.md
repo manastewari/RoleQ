@@ -1,9 +1,8 @@
 # Deploy RoleQ
 
-This deployment uses:
+The current hosted demo uses:
 
-- **Vercel** for the Next.js frontend.
-- **Render** for the FastAPI backend.
+- **Vercel multi-service** for the Next.js frontend and FastAPI backend.
 - **Supabase** for authentication and PostgreSQL.
 - **OpenAI** for resume matching and interviews.
 - **Judge0** for code execution.
@@ -28,57 +27,44 @@ postgresql+psycopg://
 If Supabase provides `postgresql://`, change only the scheme to
 `postgresql+psycopg://`.
 
-## 3. Deploy the FastAPI backend on Render
+## 3. Deploy the Vercel multi-service project
 
-1. In Render, choose **New → Blueprint**.
-2. Connect the GitHub repository.
-3. Render detects `render.yaml`.
-4. Enter the secret environment variables:
+Vercel detects:
+
+- Next.js under `apps/web`, routed at `/`.
+- FastAPI under `services/api`, routed at `/_/api`.
+
+Link the repository and run:
+
+```powershell
+vercel deploy --prod
+```
+
+Configure these production variables in Vercel:
 
 | Variable | Value |
 |---|---|
+| `NEXT_PUBLIC_API_URL` | `/_/api` |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key |
 | `DATABASE_URL` | Supabase Postgres connection URL |
 | `OPENAI_API_KEY` | OpenAI project API key |
 | `SUPABASE_URL` | Supabase project URL |
 | `SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key |
-| `CORS_ORIGINS` | Temporarily use the planned Vercel URL or update after step 4 |
+| `CORS_ORIGINS` | Exact Vercel production origin |
 | `JUDGE0_AUTH_TOKEN` | Optional managed Judge0 token |
 
-The Render service runs Alembic migrations automatically before starting.
+Verify `https://YOUR-PROJECT.vercel.app/_/api/health`.
 
-After deployment, verify:
+### Persistent data and artifacts
 
-```text
-https://YOUR-RENDER-SERVICE.onrender.com/health
-```
-
-### Proctoring artifact storage
-
-The default Blueprint stores camera/screen artifacts under `/tmp`, which is
-appropriate for a demonstration but is not persistent across service restarts.
-For durable recordings, attach a Render persistent disk and change
-`STORAGE_DIR` to its mount path, or replace local storage with a private object
-storage bucket before production use.
-
-## 4. Deploy the Next.js frontend on Vercel
-
-1. In Vercel, choose **Add New → Project**.
-2. Import the same GitHub repository.
-3. Keep the repository root as the project root; `vercel.json` supplies the
-   monorepo build settings.
-4. Add:
-
-| Variable | Value |
-|---|---|
-| `NEXT_PUBLIC_API_URL` | Render backend URL without a trailing slash |
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key |
-
-Deploy and copy the resulting `https://...vercel.app` URL.
+Do not use SQLite or `/tmp` storage for production persistence. Configure the
+Supabase PostgreSQL `DATABASE_URL`. Store camera/screen recordings in private
+object storage such as Supabase Storage or Vercel Blob.
 
 ## 5. Complete cross-origin and authentication settings
 
-Update the Render `CORS_ORIGINS` variable to the exact Vercel origin:
+Set `CORS_ORIGINS` to the exact Vercel origin:
 
 ```text
 https://YOUR-PROJECT.vercel.app
@@ -90,7 +76,7 @@ In Supabase Authentication URL Configuration:
 - Add `https://YOUR-PROJECT.vercel.app/auth/callback` to Redirect URLs.
 - Keep the localhost callback for local development if needed.
 
-Redeploy Render after changing CORS.
+Redeploy Vercel after changing production variables.
 
 ## 6. Production smoke test
 

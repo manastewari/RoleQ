@@ -3,5 +3,16 @@
   "framework": "nextjs",
   "installCommand": "npm install",
   "buildCommand": "npm --workspace apps/web run build",
-  "outputDirectory": "apps/web/.next-build"
+  "experimentalServices": {
+    "web": {
+      "root": "apps/web",
+      "routePrefix": "/",
+      "framework": "nextjs"
+    },
+    "api": {
+      "root": "services/api",
+      "entrypoint": "app.main:app",
+      "routePrefix": "/_/api"
+    }
+  }
 }

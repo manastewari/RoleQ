@@ -23,7 +23,12 @@ try {
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   // Keep production builds from overwriting the live development server's assets.
-  distDir: process.env.NODE_ENV === "production" ? ".next-build" : ".next",
+  // Vercel's isolated Next.js service requires the conventional `.next` path.
+  distDir: process.env.VERCEL
+    ? ".next"
+    : process.env.NODE_ENV === "production"
+      ? ".next-build"
+      : ".next",
   webpack(config) {
     // Monaco 0.55 pins an older sanitizer. Force its browser bundle to the patched release
     // until Monaco updates the transitive dependency itself.
