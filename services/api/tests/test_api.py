@@ -8,7 +8,8 @@ import json
 
 from sqlmodel import Session, select
 
-from app.database import AttemptRecord, ResumeAnalysisRecord, engine
+from app.auth import Actor, provision_actor
+from app.database import AttemptRecord, ResumeAnalysisRecord, UserRecord, engine
 from app.main import ai, app
 
 
@@ -49,6 +50,27 @@ def test_health_and_authentication():
     )
     assert login.status_code == 200
     assert login.json()["user"]["role"] == "student"
+
+
+def test_supabase_actor_is_auto_provisioned_when_roleq_row_is_missing():
+    email = f"recovered-{uuid4().hex[:10]}@example.test"
+    actor = Actor(
+        id=f"supabase-{uuid4()}",
+        name="Recovered Student",
+        email=email,
+        role="student",
+        provisioned=False,
+    )
+
+    recovered = provision_actor(actor)
+
+    assert recovered.provisioned
+    assert recovered.role == "student"
+    with Session(engine) as session:
+        stored = session.get(UserRecord, actor.id)
+        assert stored
+        assert stored.email == email
+        assert stored.name == "Recovered Student"
 
 
 def test_student_resume_intelligence_is_private_and_derived_only(monkeypatch):

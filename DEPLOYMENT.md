@@ -55,6 +55,18 @@ Configure these production variables in Vercel:
 | `JUDGE0_AUTH_TOKEN` | Optional managed Judge0 token |
 
 Verify `https://YOUR-PROJECT.vercel.app/_/api/health`.
+The response should include:
+
+```json
+{
+  "database_driver": "postgresql+psycopg",
+  "production_ready_database": true
+}
+```
+
+If it reports SQLite, hosted attempts and reports can disappear between Vercel
+serverless requests. Set `DATABASE_URL` to Supabase PostgreSQL before testing
+complete assessment/report flows.
 
 ### Persistent data and artifacts
 

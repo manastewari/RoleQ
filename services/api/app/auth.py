@@ -10,6 +10,7 @@ from datetime import timedelta
 
 import httpx
 from fastapi import HTTPException, Request
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
 from .config import get_settings
@@ -170,10 +171,63 @@ def get_identity() -> Actor:
     return actor
 
 
+def provision_actor(actor: Actor) -> Actor:
+    if actor.provisioned:
+        return actor
+
+    role = actor.role.strip().lower()
+    if role not in {"student", "employer"}:
+        raise HTTPException(status_code=422, detail="Account role is missing or invalid. Create the account again.")
+
+    name = actor.name.strip() or actor.email.split("@", 1)[0].replace(".", " ").replace("_", " ").title()
+    if len(name) < 2:
+        raise HTTPException(status_code=422, detail="Account name is missing. Create the account again.")
+
+    with Session(engine) as session:
+        existing = session.get(UserRecord, actor.id)
+        if existing:
+            return Actor(id=existing.id, name=existing.name, email=existing.email, role=existing.role)
+
+        email_owner = find_user_by_email(session, actor.email)
+        if email_owner:
+            if email_owner.id == actor.id:
+                return Actor(id=email_owner.id, name=email_owner.name, email=email_owner.email, role=email_owner.role)
+            raise HTTPException(
+                status_code=409,
+                detail="This verified email is already linked to another application account.",
+            )
+
+        user = UserRecord(
+            id=actor.id,
+            name=name,
+            email=actor.email,
+            password_hash="supabase-managed",
+            role=role,
+        )
+        session.add(user)
+        try:
+            session.commit()
+        except IntegrityError as exc:
+            session.rollback()
+            existing = session.get(UserRecord, actor.id)
+            if existing:
+                return Actor(id=existing.id, name=existing.name, email=existing.email, role=existing.role)
+            email_owner = find_user_by_email(session, actor.email)
+            if email_owner:
+                raise HTTPException(
+                    status_code=409,
+                    detail="This verified email is already linked to another application account.",
+                ) from exc
+            raise
+        session.refresh(user)
+        return Actor(id=user.id, name=user.name, email=user.email, role=user.role)
+
+
 def get_actor(required_role: str | None = None) -> Actor:
     actor = get_identity()
     if not actor.provisioned:
-        raise HTTPException(status_code=409, detail="Complete account setup before using the application")
+        actor = provision_actor(actor)
+        current_actor.set(actor)
     if required_role and actor.role != required_role:
         raise HTTPException(status_code=403, detail=f"{required_role.title()} account required")
     return actor

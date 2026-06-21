@@ -23,6 +23,7 @@ from .auth import (
     get_actor,
     get_identity,
     hash_password,
+    provision_actor,
     user_response,
     verify_password,
 )
@@ -421,6 +422,7 @@ def create_workspace_records(
 
 @app.get("/health")
 def health() -> dict:
+    database_driver = settings.database_url.split(":", 1)[0]
     return {
         "status": "ok",
         "openai_configured": ai.available,
@@ -428,6 +430,8 @@ def health() -> dict:
         "realtime_model": settings.openai_realtime_model,
         "auth_provider": "supabase" if settings.auth_mode != "local_test" else "local_test",
         "supabase_configured": bool(settings.supabase_url and settings.supabase_publishable_key),
+        "database_driver": database_driver,
+        "production_ready_database": database_driver.startswith("postgresql"),
         "judge0_url": settings.judge0_url,
         "supported_documents": ["pdf", "docx", "txt"],
         "supported_languages": ["python", "java", "javascript", "typescript", "c", "cpp", "csharp", "go"],
@@ -466,30 +470,7 @@ def login(request: LoginRequest, session: Session = Depends(get_session)) -> dic
 @app.post("/auth/bootstrap")
 def bootstrap_account(session: Session = Depends(get_session)) -> dict:
     identity = get_identity()
-    existing = session.get(UserRecord, identity.id)
-    if existing:
-        return user_response(existing)
-    if identity.role not in {"student", "employer"}:
-        raise HTTPException(status_code=422, detail="Account role is missing or invalid. Create the account again.")
-    if len(identity.name.strip()) < 2:
-        raise HTTPException(status_code=422, detail="Account name is missing. Create the account again.")
-    email_owner = find_user_by_email(session, identity.email)
-    if email_owner:
-        raise HTTPException(
-            status_code=409,
-            detail="This verified email is already linked to another application account.",
-        )
-    user = UserRecord(
-        id=identity.id,
-        name=identity.name.strip(),
-        email=identity.email,
-        password_hash="supabase-managed",
-        role=identity.role,
-    )
-    session.add(user)
-    session.commit()
-    session.refresh(user)
-    return user_response(user)
+    return user_response(provision_actor(identity))
 
 
 @app.get("/auth/me")
