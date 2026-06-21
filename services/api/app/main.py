@@ -73,7 +73,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-create_db_and_tables()
+database_startup_error: str | None = None
+try:
+    create_db_and_tables()
+except Exception as exc:  # pragma: no cover - exercised only when deployment DB config is wrong.
+    database_startup_error = f"{type(exc).__name__}: database connection failed during startup"
 
 PUBLIC_PATHS = {"/health", "/auth/register", "/auth/login", "/docs", "/openapi.json", "/redoc"}
 
@@ -432,6 +436,8 @@ def health() -> dict:
         "supabase_configured": bool(settings.supabase_url and settings.supabase_publishable_key),
         "database_driver": database_driver,
         "production_ready_database": database_driver.startswith("postgresql"),
+        "database_connected": database_startup_error is None,
+        "database_startup_error": database_startup_error,
         "judge0_url": settings.judge0_url,
         "supported_documents": ["pdf", "docx", "txt"],
         "supported_languages": ["python", "java", "javascript", "typescript", "c", "cpp", "csharp", "go"],

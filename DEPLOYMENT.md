@@ -15,8 +15,13 @@ GitHub repository and push this project. Never commit `.env`.
 ## 2. Obtain the Supabase database URL
 
 In Supabase, open **Project Settings → Database → Connection string** and copy
-the SQLAlchemy-compatible transaction-pooler URL. Replace the password
+the SQLAlchemy-compatible **Transaction pooler** URL. Replace the password
 placeholder with the database password.
+
+Do not use the direct connection URL that looks like
+`db.PROJECT_REF.supabase.co:5432` for Vercel serverless. It can resolve to IPv6
+and crash the function with `Cannot assign requested address`. Use the pooler
+host, usually shaped like `aws-0-REGION.pooler.supabase.com:6543`.
 
 The URL normally begins with:
 
