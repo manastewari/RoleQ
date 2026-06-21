@@ -27,7 +27,14 @@ function authErrorMessage(error: unknown, action: "signup" | "login" | "resend")
     || normalized.includes("email rate limit")
     || normalized.includes("rate limit exceeded")
   ) {
-    return "Supabase has temporarily reached its verification-email limit. Wait before retrying, or configure custom SMTP in Supabase.";
+    return "Verification email delivery is unavailable. The project owner needs to configure custom SMTP in Supabase before public signups can receive email.";
+  }
+  if (
+    code.includes("email_address_not_authorized")
+    || normalized.includes("email address not authorized")
+    || normalized.includes("not authorized to send")
+  ) {
+    return "This project is still using Supabase's restricted demo email service. Public signup requires custom SMTP configuration.";
   }
   if (code.includes("email_address_invalid") || normalized.includes("invalid email")) {
     return "Enter a valid email address that can receive the verification message.";
@@ -51,11 +58,12 @@ function authErrorMessage(error: unknown, action: "signup" | "login" | "resend")
     rawMessage === "{}"
     || !rawMessage
     || normalized.includes("error sending confirmation")
+    || normalized.includes("failed to send")
     || Number(value.status) >= 500
   ) {
     return action === "login"
       ? "Supabase could not complete sign-in. Please try again shortly."
-      : "Supabase could not send the verification email. Check the project email limits and SMTP configuration, then try again.";
+      : "Supabase could not send the verification email. Public signup requires custom SMTP in the Supabase project.";
   }
   return rawMessage;
 }

@@ -72,9 +72,21 @@ https://YOUR-PROJECT.vercel.app
 
 In Supabase Authentication URL Configuration:
 
-- Set **Site URL** to the Vercel URL.
+- Set **Site URL** to `https://YOUR-PROJECT.vercel.app`.
 - Add `https://YOUR-PROJECT.vercel.app/auth/callback` to Redirect URLs.
 - Keep the localhost callback for local development if needed.
+
+In Supabase Authentication email settings:
+
+- Keep **Confirm email** enabled.
+- Configure a **custom SMTP provider** before allowing public signups.
+- Use a verified sender address/domain and enter the provider's SMTP host,
+  port, username, password, and sender details in Supabase.
+- Do not place SMTP credentials in frontend or `NEXT_PUBLIC_*` variables.
+
+Supabase's default email service is intended only for testing, accepts a
+restricted recipient list, and has a very low sending limit. It cannot support
+public RoleQ registrations.
 
 Redeploy Vercel after changing production variables.
 
