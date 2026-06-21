@@ -46,7 +46,7 @@ RoleQ provides two role-based workspaces:
 - Track MCQ, coding, and interview performance across sessions.
 - Download a candidate coaching report.
 
-### Employer workspace
+### Employer workspace(STILL IN DEVELOPING PHASE)
 
 - Convert a job description into a structured role profile.
 - Create and publish a configurable assessment.
